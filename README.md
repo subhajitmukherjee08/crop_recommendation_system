@@ -1,6 +1,6 @@
 # crop_recommendation_system
 
-To run this ML project follow the below steps:
+To run the webapp of this ML project follow the below steps:
 
 1. Run the training_testing.ipynb notebook
 2. Then run the app.py
