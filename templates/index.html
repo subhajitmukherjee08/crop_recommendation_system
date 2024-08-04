@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Recommendation System</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+
+    <!-- <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest"> -->
+
+</head>
+<body>
+    <header>
+        <h1>Crop Recommendation System</h1>
+        <div class="header-right">
+            <h3>Designed by 'Harvestifier' group of Department of Computer Science, Ramakrishna Mission Vivekananda Educational and Research Institute</h3>
+            
+            
+            <div class="contact-us">
+                <button class="contact-button">Contact Us &#9660;</button>
+                <div class="dropdown-content">
+                    <a href="mailto:smukherjee081202@gmail.com">smukherjee081202@gmail.com</a>
+                    <a href="mailto:dhrupaddutta20@gmail.com">dhrupaddutta20@gmail.com</a>
+                </div>
+            </div>
+
+            <div class="read-report">
+                <button class="report-button" onclick="window.open('{{ url_for('static', filename='B2330052_subhajit_mukherjee_harvestifier.pdf') }}', '_blank')">Read Report</button>
+            </div>
+            
+        </div>
+
+    </header>
+
+    <div class="background-image"></div>
+
+    <div class="container">
+        
+        <h2>Please enter the values of input factors which will predict the recommended crop: </h2>
+
+        <form id="cropForm" action="/predict" method="post">
+            <div class="form-group">
+                <label for="N">N (Nitrogen):</label>
+                <input type="number" id="N" name="N" step="0.01" min="0" max="140" required>
+                <small id="NWarning" class="warning" style="display: none;">Please enter a value between 0 and 140!</small>
+            </div>
+            <div class="form-group">
+                <label for="P">P (Phosphorus):</label>
+                <input type="number" id="P" name="P" step="0.01" min="0" max="145" required>
+                <small id="NWarning" class="warning" style="display: none;">Please enter a value between 0 and 145!</small>
+            </div>
+            <div class="form-group">
+                <label for="K">K (Potassium):</label>
+                <input type="number" id="K" name="K" step="0.01" min="0" max="205" required>
+                <small id="NWarning" class="warning" style="display: none;">Please enter a value between 0 and 205!</small>
+            </div>
+            <div class="form-group">
+                <label for="temperature">Temperature:</label>
+                <input type="number" id="temperature" name="temperature" step="0.01" min="6" max="45" required>
+                <small id="NWarning" class="warning" style="display: none;">Please enter a value between 6 and 45!</small>
+            </div>
+            <div class="form-group">
+                <label for="humidity">Humidity:</label>
+                <input type="number" id="humidity" name="humidity" step="0.01" min="0" max="100" required>
+                <small id="NWarning" class="warning" style="display: none;">Please enter a value between 0 and 100!</small>
+            </div>
+            <div class="form-group">
+                <label for="ph">pH:</label>
+                <input type="number" id="ph" name="ph" step="0.01" min="0" max="14" required>
+                <small id="NWarning" class="warning" style="display: none;">Please enter a value between 0 and 14!</small>
+            </div>
+            <div class="form-group">
+                <label for="rainfall">Rainfall:</label>
+                <input type="number" id="rainfall" name="rainfall" step="0.01" min="20" max="350" required>
+                <small id="NWarning" class="warning" style="display: none;">Please enter a value between 20 and 350!</small>
+            </div>
+            <div class="form-group">
+                <button type="submit">Recommend Crop</button>
+            </div>
+        </form>
+        <div id="result" style="display: none;">
+            <h2>The best suitable crop to be yielded based on these environmental factors:</h2>
+            <p id="cropName"></p>
+            
+        </div>
+    </div>
+
+
+    <div class="container2">
+        <p>In this Crop Recommendation System, the dataset is used from 
+            <a href="http://www.kaggle.com/datasets/atharvaingle/crop-recommendation-dataset?resource=download">http://www.kaggle.com/datasets/atharvaingle/crop-recommendation-dataset?resource=download</a> </p>
+        <p>Random Forest Classifier model is used for training. It gives the accuracy 99.3%</p>
+    </div>
+
+
+    <footer>
+        <p>&copy; 2024 Crop Recommendation System. All rights reserved. Made by 'Harvestifier'. </p>
+        <p>Team members: Subhajit Mukherjee and Dhrupad Dutta </p>
+    </footer>
+
+
+    <script>
+        // Toggle dropdown menu
+        document.querySelector('.contact-button').addEventListener('click', function() {
+            document.querySelector('.dropdown-content').classList.toggle('show');
+        });
+
+        // Close dropdown menu if user clicks outside of it
+        window.onclick = function(event) {
+            if (!event.target.matches('.contact-button')) {
+                var dropdowns = document.querySelectorAll('.dropdown-content');
+                dropdowns.forEach(function(dropdown) {
+                    if (dropdown.classList.contains('show')) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+            }
+        }
+    </script>
+
+
+
+    <script>
+        document.getElementById('cropForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+    
+            // Get form data
+            var formData = new FormData(this);
+    
+            // Send form data to the server
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
+                // Display the predicted crop name
+                document.getElementById('cropName').textContent = result.crop;
+                document.getElementById('result').style.display = 'block'; // Show the result section
+                
+                // Change background image based on the predicted crop name
+                var cropName = result.crop.toLowerCase();
+                var backgroundMap = {
+                    "rice": "{{ url_for('static', filename='Crop_images/rice.jpg') }}",
+                    "maize": "{{ url_for('static', filename='Crop_images/maize.jpg') }}",
+                    "jute": "{{ url_for('static', filename='Crop_images/jute.jpg') }}",
+                    "cotton": "{{ url_for('static', filename='Crop_images/cotton.jpg') }}",
+                    "coconut": "{{ url_for('static', filename='Crop_images/coconut.jpg') }}",
+                    "papaya": "{{ url_for('static', filename='Crop_images/papaya.jpg') }}",
+                    "orange": "{{ url_for('static', filename='Crop_images/orange.jpg') }}",
+                    "apple": "{{ url_for('static', filename='Crop_images/apple.jpg') }}",
+                    "muskmelon": "{{ url_for('static', filename='Crop_images/muskmelon.jpg') }}",
+                    "watermelon": "{{ url_for('static', filename='Crop_images/watermelon.jpg') }}",
+                    "grapes": "{{ url_for('static', filename='Crop_images/grapes.jpg') }}",
+                    "mango": "{{ url_for('static', filename='Crop_images/mango.jpg') }}",
+                    "banana": "{{ url_for('static', filename='Crop_images/banana.jpg') }}",
+                    "pomegranate": "{{ url_for('static', filename='Crop_images/pomegranate.jpg') }}",
+                    "lentil": "{{ url_for('static', filename='Crop_images/lentil.jpg') }}",
+                    "blackgram": "{{ url_for('static', filename='Crop_images/blackgram.jpg') }}",
+                    "mungbean": "{{ url_for('static', filename='Crop_images/mungbean.jpg') }}",
+                    "mothbeans": "{{ url_for('static', filename='Crop_images/mothbeans.jpg') }}",
+                    "pigeonpeas": "{{ url_for('static', filename='Crop_images/pigeonpeas.jpg') }}",
+                    "kidneybeans": "{{ url_for('static', filename='Crop_images/kidneybeans.jpg') }}",
+                    "chickpea": "{{ url_for('static', filename='Crop_images/chickpea.jpg') }}",
+                    "coffee": "{{ url_for('static', filename='Crop_images/coffee.jpg') }}"
+                };
+                var backgroundImage = backgroundMap[cropName];
+                if (backgroundImage) {
+                    document.querySelector('.background-image').style.backgroundImage = "url('" + backgroundImage + "')";
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+        
+</body>
+</html>
