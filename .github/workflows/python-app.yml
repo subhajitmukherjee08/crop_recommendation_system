@@ -31,5 +31,4 @@ jobs:
     
     - name: Test with flask
       run: |
-        export FLASK_APP=app.py
-        flask run
+        python3 app.py
