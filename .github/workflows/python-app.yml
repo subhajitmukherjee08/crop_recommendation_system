@@ -21,11 +21,11 @@ jobs:
       with:
         python-version: '3.x'  # Specify your Python version here
 
-    - name: Install Flask
+    - name: Install dependencies
       run: |
         python -m venv venv
         source venv/bin/activate
-        pip install Flask
+        pip install Flask scikit-learn  # Install Flask and scikit-learn
 
     - name: Run Flask app to build static files
       run: |
