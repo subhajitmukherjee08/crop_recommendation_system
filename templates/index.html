@@ -124,16 +124,27 @@
 
 
     <script>
+        const apiUrl = 'https://subhajitmukherjee08.pythonanywhere.com/crop_recommendation_system/predict';   //For remote api calling
+
         document.getElementById('cropForm').addEventListener('submit', function(event) {
             event.preventDefault(); // Prevent the default form submission
     
             // Get form data
             var formData = new FormData(this);
     
-            // Send form data to the server
-            fetch('/predict', {
+            // Send form data to the server (for localhost)
+            // fetch('/predict', {
+            //     method: 'POST',
+            //     body: formData
+            // })
+
+            // (for public host)
+            fetch(apiUrl, {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: formData,
             })
             .then(response => response.json())
             .then(result => {
